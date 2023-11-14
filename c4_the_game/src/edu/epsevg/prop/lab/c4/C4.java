@@ -24,8 +24,8 @@ public class C4
   
   public int heuristica(Tauler t, int ultmov, int colr){
     if (t.solucio(ultmov, colr)){
-        if (colr != color_fitxes) return Integer.MIN_VALUE;
-        else return Integer.MAX_VALUE;
+        if (colr != color_fitxes) return Integer.MIN_VALUE+1;
+        else return Integer.MAX_VALUE-1;
     }
       int h = 0;
       for (int col = 0; col < t.getMida(); ++col){
@@ -51,7 +51,6 @@ public class C4
     for (int fila = 0; fila < t.getMida(); ++fila){
         int color = 0;
         int ratxa = 0;
-        int h2 = 0;
         for (int columna = 0; columna < t.getMida(); ++columna){
             int color_casella = t.getColor(fila, columna);
             if (color == color_casella){
@@ -97,7 +96,7 @@ public class C4
       return h;
   }
   
-  public int moviment_recursiva(Tauler t, int color, int profunditat, int ultmov, int alpha, int beta, boolean max){
+  public int moviment_recursiva(Tauler t, int color, int profunditat, int ultmov, int alpha, int beta){
       int millor_columna = 0;
       if (ultmov >= 0 && (profunditat >= nivell_max || !t.espotmoure() || t.solucio(ultmov, color))){
         return heuristica(t, ultmov, color*-1);
@@ -109,15 +108,15 @@ public class C4
                 if (!alphaBeta || (alphaBeta && beta > alpha)){
                     Tauler t2 = new Tauler(t);
                     t2.afegeix(i, color);
-                    if (max) {
-                        heuristica = moviment_recursiva(t2, color*-1, profunditat+1, i, alpha, beta, false);
+                    if (profunditat % 2 == 0) {
+                        heuristica = moviment_recursiva(t2, color*-1, profunditat+1, i, alpha, beta);
                         if (heuristica > alpha) {
                             alpha = heuristica;
                             millor_columna = i;
                         }
                     }
                     else {
-                       heuristica = moviment_recursiva(t2, color*-1, profunditat+1, i, alpha, beta, true); 
+                       heuristica = moviment_recursiva(t2, color*-1, profunditat+1, i, alpha, beta); 
                        if (beta > heuristica){
                            beta = heuristica;
                        }
@@ -138,17 +137,8 @@ public class C4
   {
       this.nodes = 0;
       this.color_fitxes = color;
-      int prof = 0;
-      boolean max = true;
-      for (int col = 0; col < t.getMida(); ++col){
-          if (t.getColor(0,col) != 0){
-              ++prof;
-              max = false;
-          }
-      }
-
-      int mov = moviment_recursiva(t, color, prof, -1, -1000, 1000, max);
-      System.out.println(this.nodes);
+      int mov = moviment_recursiva(t, color, 0, -1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+      System.out.println(this.nodes + " nodes visitats.");
       return mov;
   }
   
