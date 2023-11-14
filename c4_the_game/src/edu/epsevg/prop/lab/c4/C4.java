@@ -13,6 +13,7 @@ public class C4
   private int nodes;
   private int nivell_max;
   private boolean alphaBeta;
+  private boolean primerMov;
   
   public C4(int nivell, boolean poda)
   {
@@ -23,30 +24,40 @@ public class C4
  
   
   public int heuristica(Tauler t, int ultmov, int colr){
+    int v1 = 0;
+    int v2 = 0;
+    if (primerMov) {
+        v1 = 3; 
+        v2 = 2;
+    }
+    else {
+        v1 = 2;
+        v2 = 3;
+    }
     if (t.solucio(ultmov, colr)){
         if (colr != color_fitxes) return Integer.MIN_VALUE+1;
         else return Integer.MAX_VALUE-1;
     }
-      int h = 0;
-      for (int col = 0; col < t.getMida(); ++col){
-          int ratxa = 0;
-          int fila = t.getMida()-1;
-          int color = t.getColor(fila, col);
-          while (color == 0 && fila > 0){
-              --fila;
-              color = t.getColor(fila, col);
-          }
-          if (color != 0){
-              while (fila >= 0 && t.getColor(fila, col) == color){
-                  if (color == color_fitxes) ++ratxa;
-                  else --ratxa;
-                  --fila;
-              }
-          }
-          if (ratxa == 1 || ratxa == -1) h += ratxa; ratxa = 0;
-          if (ratxa > 0) h += Math.pow(ratxa, ratxa);
-          else if (ratxa < 0) h -= Math.pow(Math.abs(ratxa), Math.abs(ratxa));
-      }
+    int h = 0;
+    for (int col = 0; col < t.getMida(); ++col){
+        int ratxa = 0;
+        int fila = t.getMida()-1;
+        int color = t.getColor(fila, col);
+        while (color == 0 && fila > 0){
+            --fila;
+            color = t.getColor(fila, col);
+        }
+        if (color != 0){
+            while (fila >= 0 && t.getColor(fila, col) == color){
+                if (color == color_fitxes) ++ratxa;
+                else --ratxa;
+                --fila;
+            }
+        }
+        if (ratxa == 1 || ratxa == -1) h += ratxa; ratxa = 0;
+        if (ratxa > 0) h += Math.pow(ratxa, ratxa);
+        else if (ratxa < 0) h -= Math.pow(Math.abs(ratxa), Math.abs(ratxa));
+    }
 
     for (int fila = 0; fila < t.getMida(); ++fila){
         int color = 0;
@@ -59,8 +70,8 @@ public class C4
             }
             else {
                 if (color_casella == 0){
-                    if (ratxa > 0) h += Math.pow(2, ratxa);
-                    else if (ratxa < 0) h -= Math.pow(2, Math.abs(ratxa));
+                    if (ratxa > 0) h += Math.pow(v1, ratxa);
+                    else if (ratxa < 0) h -= Math.pow(v2, Math.abs(ratxa));
                 } 
                 else {
                     if (color_casella == color_fitxes) ratxa = 1;
@@ -78,8 +89,8 @@ public class C4
             }
             else {
                 if (color_casella == 0){
-                    if (ratxa > 0) h += Math.pow(2, ratxa);
-                    else if (ratxa < 0) h -= Math.pow(2, Math.abs(ratxa));
+                    if (ratxa > 0) h += Math.pow(v1, ratxa);
+                    else if (ratxa < 0) h -= Math.pow(v2, Math.abs(ratxa));
                 } 
                 else {
                     if (color_casella == color_fitxes) ratxa = 1;
@@ -89,11 +100,11 @@ public class C4
             color = color_casella;
         }
       }
-      //t.pintaTaulerALaConsola();
-      //System.out.println("heuristica = " + h);
-      //System.out.println("----------------------");
-      this.nodes++;
-      return h;
+    //t.pintaTaulerALaConsola();
+    //System.out.println("heuristica = " + h);
+    //System.out.println("----------------------");
+    this.nodes++;
+    return h;
   }
   
   public int moviment_recursiva(Tauler t, int color, int profunditat, int ultmov, int alpha, int beta){
@@ -129,6 +140,7 @@ public class C4
             else return beta;
         }
       }
+      if (ultmov == -1)System.out.println("heuristica: " + alpha);
       return millor_columna;
   }
   
@@ -137,6 +149,13 @@ public class C4
   {
       this.nodes = 0;
       this.color_fitxes = color;
+      boolean primer = true;
+      int col = 0;
+      while (col < t.getMida() && primer){
+          if (t.getColor(0, col) != 0) primer = false;
+          ++col;
+      }
+      primerMov = primer;
       int mov = moviment_recursiva(t, color, 0, -1, Integer.MIN_VALUE, Integer.MAX_VALUE);
       System.out.println(this.nodes + " nodes visitats.");
       return mov;
