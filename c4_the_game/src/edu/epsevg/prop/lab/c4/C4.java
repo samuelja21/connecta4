@@ -169,3 +169,213 @@ public class C4
 }
 
 
+/*
+public int heuristica(Tauler t, int ultmov, int colr) {
+    
+    int h = 0;
+    int ratxa;
+    boolean c4 = false;
+    
+    for (int f = 0; f < t.getMida() & !c4; ++f) {
+        ratxa = comproba_fila(t, f, colr);
+        if (ratxa == Integer.MAX_VALUE) {
+            h = ratxa;
+            c4 = true;
+        }
+        else h += ratxa;
+    }
+    for (int c = 0; c < t.getMida() & !c4; ++c) {
+        ratxa = comproba_columna(t, c, colr);
+        if (ratxa == Integer.MAX_VALUE) {
+            h = ratxa;
+            c4 = true;
+        }
+        else h += ratxa;
+    }
+    for (int f = 1; f < t.getMida()-3 & !c4; ++f) {
+        ratxa = comproba_diagonal1(t, f, 0, colr);
+        if (ratxa == Integer.MAX_VALUE) {
+            h = ratxa;
+            c4 = true;
+        }
+        else h += ratxa;
+    }
+    for (int c = 0; c < t.getMida()-3 & !c4; ++c) {
+        ratxa = comproba_diagonal1(t, 0, c, colr);
+        if (ratxa == Integer.MAX_VALUE) {
+            h = ratxa;
+            c4 = true;
+        }
+        else h += ratxa;
+    }
+    for (int f = t.getMida()-4; f > 0 & !c4; --f) {
+        ratxa = comproba_diagonal2(t, f, 0, colr);
+        if (ratxa == Integer.MAX_VALUE) {
+            h = ratxa;
+            c4 = true;
+        }
+        else h += ratxa;
+    }
+    for (int c = t.getMida()-1; c > 3 & !c4; --c) {
+        ratxa = comproba_diagonal2(t, 0, c, colr);
+        if (ratxa == Integer.MAX_VALUE) {
+            h = ratxa;
+            c4 = true;
+        }
+        else h += ratxa;
+    }
+    
+    this.nodes++;
+    return h;
+}
+
+public int comproba_fila(Tauler t, int f, int colr){
+    int ratxa = 0;
+    int h = 0;
+    int fitxes = 0;
+    int consec_iguals = 0;
+    boolean sortir = false;
+    
+    for (int c = 0; c < t.getMida() & !sortir; ++c) {
+        if (t.getColor(f, c) != -colr) {
+            ++fitxes;
+            if (t.getColor(f, c) == colr) {
+                ++consec_iguals;
+                ratxa += 2 * consec_iguals;
+                
+                if (consec_iguals == 4) {
+                    sortir = true;
+                    ratxa = Integer.MAX_VALUE;
+                }
+            }
+            else {
+                consec_iguals = 0;
+                ratxa += 1;
+            }
+        }
+        else {
+            if (fitxes > 3) h += ratxa; 
+            if (c > 3) sortir = true;
+            fitxes = 0;
+            ratxa = 0;
+            consec_iguals = 0;
+        }
+    }
+    if (fitxes > 4) h += ratxa;
+    
+    return h;
+}
+
+public int comproba_columna(Tauler t, int c, int colr){
+    int ratxa = 0;
+    int fitxes = 0;
+    int consec_iguals = 0;
+    boolean sortir = false;
+    
+    for (int f = 0; f < t.getMida() & !sortir; ++f) {
+        if (t.getColor(f, c) != 0) {
+            ++fitxes;
+            if (t.getColor(f, c) == colr) {
+                ++consec_iguals;
+                ratxa += 2 * consec_iguals;
+                
+                if (consec_iguals == 4) {
+                    ratxa = Integer.MAX_VALUE;
+                    sortir = true;
+                }
+            }
+            else {
+                if (f > 3) sortir = true;
+                consec_iguals = 0;
+                ratxa = 0;
+            }
+        }
+        else {
+            ratxa += 1 * ((t.getMida()-1)-fitxes);
+            sortir = true;
+        }
+    }
+    return ratxa;
+}
+
+public int comproba_diagonal1(Tauler t, int f, int c, int colr){
+    int ratxa = 0;
+    int h = 0;
+    int fitxes = 0;
+    int consec_iguals = 0;
+    boolean sortir = false;
+    
+    while (f < t.getMida() & c < t.getMida() & !sortir) {
+        if (t.getColor(f, c) != -colr) {
+            ++fitxes;
+            if (t.getColor(f, c) == colr) {
+                ++consec_iguals;
+                ratxa += 2 * consec_iguals;
+                
+                if (consec_iguals == 4) {
+                    sortir = true;
+                    ratxa = Integer.MAX_VALUE;
+                }
+            }
+            else {
+                consec_iguals = 0;
+                ratxa += 1;
+            }
+        }
+        else {
+            if (fitxes > 3) h += ratxa; 
+            if (c > 3 | f > 3) sortir = true;
+            fitxes = 0;
+            ratxa = 0;
+            consec_iguals = 0;
+        }
+        ++f;
+        ++c;
+    }
+        
+    if (fitxes > 4) h += ratxa;
+    
+    return h;
+}
+
+public int comproba_diagonal2(Tauler t, int f, int c, int colr){
+    int ratxa = 0;
+    int h = 0;
+    int fitxes = 0;
+    int consec_iguals = 0;
+    boolean sortir = false;
+    
+    while (f < t.getMida() & c >= 0 & !sortir) {
+        if (t.getColor(f, c) != -colr) {
+            ++fitxes;
+            if (t.getColor(f, c) == colr) {
+                ++consec_iguals;
+                ratxa += 2 * consec_iguals;
+                
+                if (consec_iguals == 4) {
+                    sortir = true;
+                    ratxa = Integer.MAX_VALUE;
+                }
+            }
+            else {
+                consec_iguals = 0;
+                ratxa += 1;
+            }
+        }
+        else {
+            if (fitxes > 3) h += ratxa; 
+            if (c < 3 | f > 3) sortir = true;
+            fitxes = 0;
+            ratxa = 0;
+            consec_iguals = 0;
+        }
+        ++f;
+        --c;
+    }
+        
+    if (fitxes > 4) h += ratxa;
+    
+    return h;
+}*/
+
+
