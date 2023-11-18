@@ -21,24 +21,15 @@ public class C4
     nivell_max = nivell;
     alphaBeta = poda;
   }
- 
   
   public int heuristica(Tauler t, int ultmov, int colr){
-    int v1 = 0;
-    int v2 = 0;
-    if (primerMov) {
-        v1 = 3; 
-        v2 = 2;
-    }
-    else {
-        v1 = 2;
-        v2 = 3;
-    }
     if (t.solucio(ultmov, colr)){
         if (colr != color_fitxes) return Integer.MIN_VALUE+1;
         else return Integer.MAX_VALUE-1;
     }
     int h = 0;
+    
+    //COLUMNES
     for (int col = 0; col < t.getMida(); ++col){
         int ratxa = 0;
         int fila = t.getMida()-1;
@@ -47,6 +38,8 @@ public class C4
             --fila;
             color = t.getColor(fila, col);
         }
+        int buides = t.getMida()-1-fila;
+        int ultima_buida = t.getMida() - buides;
         if (color != 0){
             while (fila >= 0 && t.getColor(fila, col) == color){
                 if (color == color_fitxes) ++ratxa;
@@ -54,56 +47,50 @@ public class C4
                 --fila;
             }
         }
-        if (ratxa == 1 || ratxa == -1) h += ratxa; ratxa = 0;
-        if (ratxa > 0) h += Math.pow(ratxa, ratxa);
-        else if (ratxa < 0) h -= Math.pow(Math.abs(ratxa), Math.abs(ratxa));
+        if (buides + Math.abs(ratxa) >= 4){
+                if (ratxa > 0) h += Math.pow(ratxa, ratxa);
+                else if (ratxa < 0) h -= Math.pow(Math.abs(ratxa), Math.abs(ratxa));
+        }
     }
-
+    
+    //FILES
     for (int fila = 0; fila < t.getMida(); ++fila){
-        int color = 0;
-        int ratxa = 0;
-        for (int columna = 0; columna < t.getMida(); ++columna){
-            int color_casella = t.getColor(fila, columna);
-            if (color == color_casella){
-                if (color_casella == color_fitxes) ++ratxa;
-                else if (color_casella != 0) --ratxa;
-            }
-            else {
-                if (color_casella == 0){
-                    if (ratxa > 0) h += Math.pow(v1, ratxa);
-                    else if (ratxa < 0) h -= Math.pow(v2, Math.abs(ratxa));
+        boolean vuida = false;
+        for (int col = 0; col < t.getMida() - 3 && !vuida; ++col){
+            int buides = 0;
+            int fitxes_jugador = 0;
+            int fitxes_rival = 0;
+            boolean possible4 = true;
+            int consecutives = 0;
+            int color = 0;
+            int ratxa = 0;
+            for (int i = 0; i < 4 && possible4; ++i){
+                if (consecutives == 0 && t.getColor(fila, col+i) != 0) consecutives = 1;
+                else if (color == t.getColor(fila, col+i))++consecutives;
+                if (t.getColor(fila, col+i) == color_fitxes) fitxes_jugador++;
+                else if (t.getColor(fila, col+i) == 0){
+                    ratxa = consecutives;
+                    buides++;
+                    if (fila > 0 && t.getColor(fila-1, col+i) == 0) possible4 = false;
                 } 
-                else {
-                    if (color_casella == color_fitxes) ratxa = 1;
-                    else ratxa = -1;
-                }
+                else fitxes_rival++;
+                if (fitxes_jugador > 0 && fitxes_rival > 0) possible4 = false;
+                color = t.getColor(fila, col+i);
             }
-            color = color_casella;
+            if (possible4){
+                ratxa = Math.max(ratxa, consecutives);
+                if (fitxes_jugador > 0) h += Math.pow(fitxes_jugador, fitxes_jugador) + 2*ratxa;
+                else if (fitxes_rival > 0) h -= Math.pow(fitxes_rival, fitxes_rival)+2*ratxa;
+            }
+            if (buides == 4) vuida = true;
         }
-        ratxa = 0;
-        for (int columna = t.getMida()-1; columna >= 0; --columna){
-            int color_casella = t.getColor(fila, columna);
-            if (color == color_casella){
-                if (color_casella == color_fitxes) ++ratxa;
-                else if (color_casella != 0) --ratxa;
-            }
-            else {
-                if (color_casella == 0){
-                    if (ratxa > 0) h += Math.pow(v1, ratxa);
-                    else if (ratxa < 0) h -= Math.pow(v2, Math.abs(ratxa));
-                } 
-                else {
-                    if (color_casella == color_fitxes) ratxa = 1;
-                    else ratxa = -1;
-                }
-            }
-            color = color_casella;
-        }
-      }
+    }
+    
     //t.pintaTaulerALaConsola();
     //System.out.println("heuristica = " + h);
     //System.out.println("----------------------");
     this.nodes++;
+      
     return h;
   }
   
@@ -133,7 +120,7 @@ public class C4
                        }
                     }   
                 }
-            }
+            }   
         }
         if (ultmov >= 0){
             if (profunditat % 2 == 0) return alpha;
@@ -166,7 +153,7 @@ public class C4
   {
     return nom;
   }
-}
+
 
 
 /*
@@ -376,6 +363,7 @@ public int comproba_diagonal2(Tauler t, int f, int c, int colr){
     if (fitxes > 4) h += ratxa;
     
     return h;
-}*/
-
+}
+*/
+}
 
