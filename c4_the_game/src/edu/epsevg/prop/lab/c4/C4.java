@@ -135,13 +135,6 @@ public class C4
   {
       this.nodes = 0;
       this.color_fitxes = color;
-      boolean primer = true;
-      int col = 0;
-      while (col < t.getMida() && primer){
-          if (t.getColor(0, col) != 0) primer = false;
-          ++col;
-      }
-      primerMov = primer;
       int mov = moviment_recursiva(t, color, 0, -1, Integer.MIN_VALUE, Integer.MAX_VALUE);
       System.out.println(this.nodes + " nodes visitats.");
       return mov;
