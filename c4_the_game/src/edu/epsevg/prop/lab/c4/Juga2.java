@@ -35,6 +35,8 @@ public class Juga2 extends javax.swing.JFrame {
 
     /**
      * Creates new form NewJFrame
+     * @param p2
+     * @param useAutoMode
      */
     public Juga2(Jugador p1, Jugador p2, boolean useAutoMode) {
         initComponents();
@@ -97,12 +99,12 @@ public class Juga2 extends javax.swing.JFrame {
         // Definiu al vostre gust els jugadors a enfrontar.
         //Jugador p1 = new Manual();
         //Jugador p1 = new Aleatori();
-        //Jugador p1 = new C4(4, true);
-        Jugador p1 = new Profe(2,true);
+        Jugador p1 = new C4(8, true);
+        //Jugador p1 = new Profe(2,true);
 
-        //Jugador p2 = new Profe(2,false);
+        Jugador p2 = new Profe(2,false);
         //Jugador p2 = new Manual();
-        Jugador p2 = new C4(4, true);
+        //Jugador p2 = new C4(4, true);
 
         boolean autoMode = true;
         final Juga2 j = new Juga2(p1, p2, autoMode);
@@ -384,6 +386,10 @@ public class Juga2 extends javax.swing.JFrame {
         }
     }
 
+    /**
+     *
+     * @param g1
+     */
     @Override
     public void paint(Graphics g1) {
         super.paint(g1);

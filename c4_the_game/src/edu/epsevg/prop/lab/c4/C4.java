@@ -1,9 +1,9 @@
 package edu.epsevg.prop.lab.c4;
 
 /**
- * Jugador aleatori
- * "Alea jacta est"
- * @author Profe
+ * Jugador C4
+ * 
+ * @author Samuel i Ivan
  */
 public class C4
   implements Jugador, IAuto
@@ -13,77 +13,92 @@ public class C4
   private int nodes;
   private int nivell_max;
   private boolean alphaBeta;
-  private boolean primerMov;
   
-  public C4(int nivell, boolean poda)
+    /**
+     *nivell és la profunditat màxima a la que arriba el minimax, i poda és true si volem tenir poda alpha beta, false en cas contrari
+     * @param nivell
+     * @param poda
+     */
+    public C4(int nivell, boolean poda)
   {
     nom = "C4";
     nivell_max = nivell;
     alphaBeta = poda;
   }
   
-  public int heuristica(Tauler t, int ultmov, int colr){
-    if (t.solucio(ultmov, colr)){
-        if (colr != color_fitxes) return Integer.MIN_VALUE+1;
-        else return Integer.MAX_VALUE-1;
-    }
+    /**
+     *Retorna el valor de la heurística pel taulell t, on ultmov i colr són l'última fitxa que s'ha col·locat i la se va columna
+     * @param t
+     * @param ultmov
+     * @param colr
+     * @return valor heurística
+     */
+    public int heuristica(Tauler t, int ultmov, int colr){
     int h = 0;
-    
-    //COLUMNES
-    for (int col = 0; col < t.getMida(); ++col){
-        int ratxa = 0;
-        int fila = t.getMida()-1;
-        int color = t.getColor(fila, col);
-        while (color == 0 && fila > 0){
-            --fila;
-            color = t.getColor(fila, col);
-        }
-        int buides = t.getMida()-1-fila;
-        if (color != 0){
-            while (fila >= 0 && t.getColor(fila, col) == color){
-                if (color == color_fitxes) ++ratxa;
-                else --ratxa;
-                --fila;
-            }
-        }
-        if (buides + Math.abs(ratxa) >= 4){
-                if (ratxa > 0) h += Math.pow(ratxa, ratxa);
-                else if (ratxa < 0) h -= Math.pow(Math.abs(ratxa), Math.abs(ratxa));
-        }
+    if (t.solucio(ultmov, colr)){
+        if (colr != color_fitxes) h = Integer.MIN_VALUE+1;
+        else h =  Integer.MAX_VALUE-1;
     }
-    
-    //FILES
-    for (int fila = 0; fila < t.getMida(); ++fila){
-        boolean vuida = false;
-        for (int col = 0; col < t.getMida() - 3 && !vuida; ++col){
-            int buides = 0;
-            int fitxes_jugador = 0;
-            int fitxes_rival = 0;
-            boolean possible4 = true;
-            int consecutives = 0;
-            int color = 0;
+    else {
+        //COLUMNES
+        for (int col = 0; col < t.getMida(); ++col){
             int ratxa = 0;
-            for (int i = 0; i < 4 && possible4; ++i){
-                if (consecutives == 0 && t.getColor(fila, col+i) != 0) consecutives = 1;
-                else if (color == t.getColor(fila, col+i))++consecutives;
-                if (t.getColor(fila, col+i) == color_fitxes) fitxes_jugador++;
-                else if (t.getColor(fila, col+i) == 0){
-                    ratxa = consecutives;
-                    buides++;
-                    if (fila > 0 && t.getColor(fila-1, col+i) == 0) possible4 = false;
-                } 
-                else fitxes_rival++;
-                if (fitxes_jugador > 0 && fitxes_rival > 0) possible4 = false;
-                color = t.getColor(fila, col+i);
+            int fila = t.getMida()-1;
+            int color = t.getColor(fila, col);
+            int buides = 0;
+            while (color == 0 && fila > 0){
+                ++buides;
+                --fila;
+                color = t.getColor(fila, col);
             }
-            if (possible4){
-                ratxa = Math.max(ratxa, consecutives);
-                if (fitxes_jugador > 0) h += Math.pow(fitxes_jugador, fitxes_jugador) + 2*ratxa;
-                else if (fitxes_rival > 0) h -= Math.pow(fitxes_rival, fitxes_rival)+2*ratxa;
+            if (color != 0){
+                while (fila >= 0 && t.getColor(fila, col) == color){
+                    if (color == color_fitxes) ++ratxa;
+                    else --ratxa;
+                    --fila;
+                }
             }
-            if (buides == 4) vuida = true;
+            else ++buides;
+            if (buides + Math.abs(ratxa) >= 4){
+                    if (ratxa > 0) h += Math.pow(ratxa, ratxa);
+                    else if (ratxa < 0) h -= Math.pow(Math.abs(ratxa), Math.abs(ratxa));
+            }
+        }
+
+        //FILES
+        for (int fila = 0; fila < t.getMida(); ++fila){
+            boolean buida = false;
+            for (int col = 0; col < t.getMida() - 3 && !buida; ++col){
+                int buides = 0;
+                int fitxes_jugador = 0;
+                int fitxes_rival = 0;
+                boolean possible4 = true;
+                int consecutives = 0;
+                int color = 0;
+                int ratxa = 0;
+                for (int i = 0; i < 4 && possible4; ++i){
+                    if (consecutives == 0 && t.getColor(fila, col+i) != 0) consecutives = 1;
+                    else if (color == t.getColor(fila, col+i))++consecutives;
+                    if (t.getColor(fila, col+i) == color_fitxes) fitxes_jugador++;
+                    else if (t.getColor(fila, col+i) == 0){
+                        ratxa = consecutives;
+                        buides++;
+                        if (fila > 0 && t.getColor(fila-1, col+i) == 0) possible4 = false;
+                    } 
+                    else fitxes_rival++;
+                    if (fitxes_jugador > 0 && fitxes_rival > 0) possible4 = false;
+                    color = t.getColor(fila, col+i);
+                }
+                if (possible4){
+                    ratxa = Math.max(ratxa, consecutives);
+                    if (fitxes_jugador > 0) h += Math.pow(fitxes_jugador, fitxes_jugador) + 2*ratxa;
+                    else if (fitxes_rival > 0) h -= Math.pow(fitxes_rival, fitxes_rival)+2*ratxa;
+                }
+                if (buides == 4) buida = true;
+            }
         }
     }
+
     
     //t.pintaTaulerALaConsola();
     //System.out.println("heuristica = " + h);
@@ -93,7 +108,18 @@ public class C4
     return h;
   }
   
-  public int moviment_recursiva(Tauler t, int color, int profunditat, int ultmov, int alpha, int beta){
+    /**
+     *Retorna la millor columna si ultmov = -1, sinó, retorna el valor heurístic del node, resultat de cridar al mètode heuristica si és una fulla o
+     * del valor mínim o màxim dels seus fills, si és un node diferent a l'arrel.
+     * @param t
+     * @param color
+     * @param profunditat
+     * @param ultmov
+     * @param alpha
+     * @param beta
+     * @return millor columna / heurística del node
+     */
+    public int moviment_recursiva(Tauler t, int color, int profunditat, int ultmov, int alpha, int beta){
       int millor_columna = 0;
       if (ultmov >= 0 && (profunditat >= nivell_max || !t.espotmoure() || t.solucio(ultmov, color))){
         return heuristica(t, ultmov, color*-1);
@@ -126,11 +152,16 @@ public class C4
             else return beta;
         }
       }
-      if (ultmov == -1)System.out.println("heuristica: " + alpha);
       return millor_columna;
   }
   
-  @Override
+    /**
+     *Retorna el moviment escollit, és a dir, la columna resultat de cridar a moviment_recursiva.
+     * @param t
+     * @param color
+     * @return columna escollida
+     */
+    @Override
   public int moviment(Tauler t, int color)
   {
       this.nodes = 0;
@@ -140,10 +171,16 @@ public class C4
       return mov;
   }
   
-  @Override
+    /**
+     *Retorna el nom del jugador
+     * @return nom
+     */
+    @Override
   public String nom()
   {
     return nom;
   }
 }
+
+
 
